@@ -1,9 +1,9 @@
 📂 AI Conversation Folder
 ----------------------------------
 Tool: ChatGPT
-----------------------------------
-Conversation 1, Weather Data Functions.
-
+-----------------------------------------------------------------------------------------------------------------
+Conversation 1, 🌤️ Weather Data Functions.
+--------------------------------------------
 Me: 
 Here is my code, What improvements can be made to the code structure to enhance readability and maintainability?
 
@@ -398,7 +398,8 @@ You can mock the `get_weather()` function in unit tests and:
 
 ---
 
-Would you like this to be included in your project notebook and saved as **`conversation12.txt`** in your AI prompting documentation?
+------------------------------------------------------------------------------------------------------------------
+Conversation 2, 📊 Visualisation Functions.
 
 
 
