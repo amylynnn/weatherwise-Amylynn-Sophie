@@ -400,6 +400,261 @@ You can mock the `get_weather()` function in unit tests and:
 
 ------------------------------------------------------------------------------------------------------------------
 Conversation 2, 📊 Visualisation Functions.
+------------------------------------------------
+
+Me: 
+Here is my code, i used ax.set() with multiple parameters and used meaningful variable names such as (times\_data instead of data) for clarity. Can you suggest improvements to the function’s docstring to make it clearer and more comprehensive? As well as how I can make the visualisation more informative and visually appealing?
+
+import matplotlib.pyplot as plt
+
+def create\_temperature\_visualisation(weather\_data, output\_type='display'):
+"""
+Visualize temperature data for multiple locations.
+
+```
+Args:
+    weather_data (dict): {location: {time: {'temperature': value}}}
+    output_type (str): 'display' to show plot, 'figure' to return figure object
+
+Returns:
+    matplotlib.figure.Figure or None
+"""
+fig, ax = plt.subplots()
+
+for location, times_data in weather_data.items():
+    times = list(times_data.keys())
+    temps = [times_data[time]['temperature'] for time in times]
+    ax.plot(times, temps, marker='o', label=location)
+
+ax.set(title='Temperature Forecast', xlabel='Time Period', ylabel='Temperature (°C)')
+ax.legend()
+ax.grid(True)
+
+if output_type == 'figure':
+    return fig
+plt.show()
+```
+
+AI:
+Your function is well-structured, and you're already applying **best practices** like using `ax.set()` and clear variable names — great work! Here's how we can **enhance the docstring and the visualisation itself**:
+
+---
+
+## ✅ Improved Docstring
+
+A more comprehensive docstring should include:
+
+* What each argument means and expects (structure)
+* What the function does in more detail
+* Description of return value
+* Any assumptions or limitations
+
+```python
+def create_temperature_visualisation(weather_data, output_type='display'):
+    """
+    Generates a line plot visualising temperature forecasts for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            temperature values in the form:
+            {
+                'Location1': {
+                    'Day 1': {'temperature': 25},
+                    'Day 2': {'temperature': 28},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+
+    Notes:
+        - Assumes temperature values are numeric (in °C).
+        - X-axis ticks will be based on dictionary key order.
+    """
+```
+
+---
+
+## 🎨 Suggestions to Improve the Visualisation
+
+### ✅ 1. **Rotate x-axis labels** (for long or date-based time strings)
+
+```python
+plt.xticks(rotation=45)
+```
+
+### ✅ 2. **Add data labels or tooltips (optional)**
+
+If you want to annotate points (for clarity with few data points):
+
+```python
+for i, temp in enumerate(temps):
+    ax.annotate(f"{temp}°", (times[i], temps[i]), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
+```
+
+### ✅ 3. **Improve aesthetics (colors, grid, figure size)**
+
+```python
+fig, ax = plt.subplots(figsize=(10, 6))
+```
+
+You can also apply a style like:
+
+```python
+plt.style.use('seaborn-darkgrid')  # Optional: 'ggplot', 'bmh', etc.
+```
+
+---
+
+## ✅ Final Enhanced Version
+
+```python
+import matplotlib.pyplot as plt
+
+def create_temperature_visualisation(weather_data, output_type='display'):
+    """
+    Generates a line plot visualising temperature forecasts for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            temperature values in the form:
+            {
+                'Location1': {
+                    'Day 1': {'temperature': 25},
+                    'Day 2': {'temperature': 28},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+    """
+    plt.style.use('seaborn-darkgrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for location, times_data in weather_data.items():
+        times = list(times_data.keys())
+        temps = [times_data[time]['temperature'] for time in times]
+        ax.plot(times, temps, marker='o', label=location)
+
+        # Optional: annotate points
+        for i, temp in enumerate(temps):
+            ax.annotate(f"{temp}°", (times[i], temps[i]), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
+
+    ax.set(title='Temperature Forecast', xlabel='Time Period', ylabel='Temperature (°C)')
+    ax.legend()
+    ax.grid(True)
+    plt.xticks(rotation=45)
+
+    if output_type == 'figure':
+        return fig
+    plt.show()
+```
+
+---
+
+Me:
+What about the improvement for the def create_precipitation_visualisation function
+
+AI:
+Great! Let’s apply the **same improvements** to your `create_precipitation_visualisation()` function:
+
+* ✅ Improve the **docstring**
+* ✅ Make the chart more **informative and visually appealing**
+* ✅ Ensure the layout is consistent with `create_temperature_visualisation()`
+
+---
+
+## ✅ Improved `create_precipitation_visualisation()` Function
+
+```python
+import matplotlib.pyplot as plt
+
+def create_precipitation_visualisation(weather_data, output_type='display'):
+    """
+    Generates a bar chart visualising precipitation chances for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            precipitation data in the form:
+            {
+                'Location1': {
+                    'Day 1': {'precipitation': 20},
+                    'Day 2': {'precipitation': 45},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+
+    Notes:
+        - Precipitation values are expected to be in percentages (0–100).
+        - Can handle multiple locations for comparison.
+    """
+    plt.style.use('seaborn-darkgrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    width = 0.35  # Width of the bars
+    locations = list(weather_data.keys())
+    time_labels = list(next(iter(weather_data.values())).keys())
+    x = range(len(time_labels))
+
+    for idx, location in enumerate(locations):
+        times_data = weather_data[location]
+        precip_values = [times_data[time]['precipitation'] for time in time_labels]
+        offsets = [i + (idx * width) for i in x]
+        ax.bar(offsets, precip_values, width=width, label=location)
+
+        # Optional: annotate bars
+        for i, value in enumerate(precip_values):
+            ax.text(offsets[i], value + 1, f"{value}%", ha='center', fontsize=8)
+
+    ax.set(
+        title="Chance of Rain by Location",
+        xlabel="Time Period",
+        ylabel="Chance of Rain (%)"
+    )
+    ax.set_xticks([i + width/2 for i in x])
+    ax.set_xticklabels(time_labels, rotation=45)
+    ax.legend()
+    ax.grid(True)
+
+    if output_type == 'figure':
+        return fig
+    plt.show()
+```
+
+---
+
+## 🎯 Improvements Made
+
+| Area                | What Changed                                  | Why                             |
+| ------------------- | --------------------------------------------- | ------------------------------- |
+| ✅ **Docstring**     | Clear, structured description of input/output | Easier to understand & maintain |
+| ✅ **Bar offsets**   | Enables **multi-location comparison**         | Cleaner grouped display         |
+| ✅ **Labels**        | Annotates each bar with `%` value             | More informative                |
+| ✅ **Style & Size**  | `seaborn-darkgrid`, bigger figure             | Modern & readable               |
+| ✅ **Legend + Grid** | Included for clarity                          | Supports comparison             |
+
+---
+
 
 
 
