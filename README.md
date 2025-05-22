@@ -79,7 +79,7 @@ The file `AmylynnSophieWeatherWise__starter_notebook.ipynb` breaks the code into
 
 Thank you for reviewing my project!
 
-— *Amylynn Sophie*
+— *Amylynn Sophie, 22314110*
 
 ---
 
