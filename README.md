@@ -1,63 +1,86 @@
-# 🌦️ WeatherWise Template
+# 🌦️ WeatherWise - Amylynn Sophie
 
-Welcome to the **WeatherWise Assignment Starter Template**! This repository helps you kickstart your project by combining Python, weather APIs, data visualisation, and AI-assisted development. 🤖📊
-
-![Build With AI](https://img.shields.io/badge/Built_with-AI-blueviolet?logo=openai)
-![Python](https://img.shields.io/badge/Made_with-Python-3776AB?logo=python)
-![Visualisation](https://img.shields.io/badge/Includes-Visualisations-orange?logo=plotly)
+Welcome to my interactive weather assistant project, powered by real-time weather data and natural language AI! This README will guide you through the project structure, how to run the app, and what each file/folder contains.
 
 ---
 
-## 🚀 How to Use This Template
+## 📁 Project Structure
 
-1. Click **"Use this template"** on GitHub to create your own copy.
-2. Rename your repository to something like `weatherwise-jane-doe`.
-3. Clone it and start developing in `starter_notebook.ipynb`.
-
----
-
-## 📁 Folder Structure
-
-- `starter_notebook.ipynb` — Main notebook to build your project.
-- `ASSIGNMENT.md` — Full assignment specification.
-- `ai-conversations/` — Save your `.txt` AI conversations here.
-- `resources/` — Guides, prompting tips, and AI technique examples.
-- `submission/` — Files to help you finalise your submission:
-  - `checklist-md.md` — Submission checklist
-  - `reflection.md` — Write your 300–500 word project reflection
-  - `one-page-summary.md` — (Optional) Your own summary of key ideas or process
+```
+├── AmylynnSophieWeatherWiseApp.ipynb            # ✅ Main interactive notebook (Run this to use the app)
+├── AmylynnSophieWeatherWise__starter_notebook.ipynb # 📘 Annotated reference notebook with code breakdowns
+├── Before-After-Examples/                       # 🔄 Prompting improvements with Before/After code samples
+├── ai-conversations/                            # 💬 Example conversations with AI showing evolution of ideas
+├── PROMPTING.md                                 # ✍️ Details my prompting strategies and decisions
+├── reflection.md                                # 🪞 Final project reflection
+└── README.md                                     # 📖 This guide
+```
 
 ---
 
-📄 **Quick Overview:**  
-A one-page summary of the full assignment is available in [`resources/assignment-summary.md`](resources/assignment-summary.md).
+## 🚀 How to Use the App (AmylynnSophieWeatherWiseApp.ipynb)
+
+1. **Open the notebook** `AmylynnSophieWeatherWiseApp.ipynb` in Google Colab or Jupyter Notebook.
+2. **Run the cell**.
+3. The interactive UI will appear with input fields.
+
+### 🎯 Features:
+
+* **City Input:** Type a city name (e.g., `Paris`, `London`, `Tokyo`).
+* **Weather Visualizations:**
+
+  * Click **📊 Show Forecast Charts** to view interactive temperature and precipitation plots.
+  * Use the sliders to control how many forecast points to display.
+* **Ask a Weather Question:**
+
+  * Type natural language questions like:
+
+    * “Will it rain in Paris tomorrow?”
+    * “Is it going to be cloudy in Sydney today?”
+  * Click **🧠 Answer My Question** to get a smart weather response.
+* **Choose Weather Data Source:** Select between real API (OpenWeatherMap) or mock source for testing.
 
 ---
 
-## 📓 Submission Checklist
+## 📘 What’s in the Starter Notebook?
 
-✅ Complete all required functions  
-✅ Include at least 5 AI conversations in `ai-conversations/`  
-✅ Document your intentional prompting  
-✅ Fill in your project reflection in `submission/reflection-template.md`  
-✅ Zip your project and upload it to the LMS  
+The file `AmylynnSophieWeatherWise__starter_notebook.ipynb` breaks the code into logical parts with:
+
+* ✨ **Clear comments** explaining the purpose and logic
+* 🔍 **Testing examples**
+* 📦 Useful for reviewing or understanding how each module works independently
 
 ---
 
-🧠 AI Conversations  
-Save your AI interactions in the `ai-conversations/` folder.  
-See `ai-conversations/how-to-log-ai-conversations.md` for details.
+## 🧠 AI Prompting Artifacts
+
+* **Before-After-Examples/**
+  Contains snapshots of how prompts evolved and improved specific functions.
+
+* **ai-conversations/**
+  Stores transcripts of helpful AI conversations that contributed to the project.
+
+* **PROMPTING.md**
+  A write-up of my **prompting strategies**, how I guided the AI, and the improvements made.
+
+* **reflection.md**
+  My personal **reflection** on the learning experience, what I achieved, and what I’d do differently.
+
+---
+
+## 💡 Notes for Review
+
+* You will **need an internet connection** to fetch real weather data from the OpenWeatherMap API.
+* If the API fails (e.g., due to quota), switch the source to `"mocksource"` to test functionality without live data.
+* The `interactive_temperature_plot()` and `interactive_precipitation_plot()` functions use `ipywidgets` for sliders.
+
+---
 
 
---
-## 🧠 Need Help with AI Prompts?
+Thank you for reviewing my project!
 
-Check out:
-Check out:
-- `resources/ai-tips-tricks.md` — Prompting tips and pitfalls
-- `resources/sample-prompting-journey.md` — Full example of AI-enhanced development
-- `resources/prompts-by-method-step.md` — Prompts aligned with the 6-step dev process
-- `resources/before-after-example.md` — Required: Show how your prompting improved AI-generated code
+— *Amylynn Sophie*
+
+---
 
 
-Good luck and have fun! 💡🌤️
