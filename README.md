@@ -7,8 +7,8 @@ Welcome to my interactive weather assistant project, powered by real-time weathe
 ## 📁 Project Structure
 
 ```
-├── AmylynnSophieWeatherWiseApp.ipynb            # ✅ Main interactive notebook (Run this to use the app)
-├── AmylynnSophieWeatherWise__starter_notebook.ipynb # 📘 Annotated reference notebook with code breakdowns
+├── AmylynnSophieWeatherWise_App.ipynb            # ✅ Main interactive notebook (Run this to use the app)
+├── AmylynnSophie_WeatherWise__starter_notebook.ipynb # 📘 Annotated reference notebook with code breakdowns
 ├── Before-After-Examples/                       # 🔄 Prompting improvements with Before/After code samples
 ├── ai-conversations/                            # 💬 Example conversations with AI showing evolution of ideas
 ├── PROMPTING.md                                 # ✍️ Details my prompting strategies and decisions
@@ -20,7 +20,7 @@ Welcome to my interactive weather assistant project, powered by real-time weathe
 
 ## 🚀 How to Use the App (AmylynnSophieWeatherWiseApp.ipynb)
 
-1. **Open the notebook** `AmylynnSophieWeatherWiseApp.ipynb` in Google Colab or Jupyter Notebook.
+1. **Open the notebook** `AmylynnSophieWeatherWise_App.ipynb` in Google Colab or Jupyter Notebook.
 2. **Run the cell**.
 3. The interactive UI will appear with input fields.
 
