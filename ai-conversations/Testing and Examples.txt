@@ -1,0 +1,1139 @@
+📂 AI Conversation Folder
+----------------------------------
+Tool: ChatGPT
+-----------------------------------------------------------------------------------------------------------------
+🧪 Testing and Examples
+-----------------------------------------------------------------------------------------------------------------
+Conversation 1, 🌤️ Weather Data Functions.
+-----------------------------------------------------------------------------------------------------------------
+
+Me: Can you help me with the Functions and also go through the three types of testing: doctest, unittest, assert of my code please; 
+# Define get_weather_data() function here
+def fetch_weather_data(city, source='openweathermap'):
+    """Fetch weather data for a city, using cache if available and valid."""
+    # Key is (source, city) to support multiple sources and cities
+    key = (source.lower(), city.lower())
+    now = datetime.utcnow()
+    # Use cached data if it's still fresh
+    if key in weather_cache:
+        timestamp, cached_data = weather_cache[key]
+        if now - timestamp < timedelta(minutes=CACHE_EXPIRY_MINUTES):
+            return cached_data
+    # Otherwise, fetch new data
+    if source.lower() == 'openweathermap':
+        data = fetch_openweathermap(city)
+    elif source.lower() == 'mocksource':
+        data = fetch_mock_source(city)
+    else:
+        raise ValueError(f"Unsupported weather data source: {source}")
+    weather_cache[key] = (now, data)
+    return data
+
+def fetch_openweathermap(city): #Calls the actual weather API and returns the JSON forecast.
+    """Call OpenWeatherMap API to get weather forecast for the given city."""
+    url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={API_KEY}&units=metric"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
+
+    def fetch_mock_source(city):
+    """Generate random mock weather data for testing/demo."""
+    from random import uniform, randint
+    now = datetime.utcnow()
+    list_data = []
+    for i in range(40):  # 5 days, 3-hour intervals
+        dt = now + timedelta(hours=3*i)
+        dt_txt = dt.strftime("%Y-%m-%d %H:%M:%S")
+        temp = round(uniform(10, 25), 1)
+        rain = round(uniform(0, 5), 1) if randint(0, 1) else 0
+        snow = round(uniform(0, 2), 1) if randint(0, 3) == 0 else 0
+        weather_desc = 'clear sky' if randint(0, 2) == 0 else 'rain'
+        entry = {
+            'dt_txt': dt_txt,
+            'main': {'temp': temp},
+            'rain': {'3h': rain} if rain > 0 else {},
+            'snow': {'3h': snow} if snow > 0 else {},
+            'weather': [{'description': weather_desc}],
+            'wind': {'speed': round(uniform(0, 10),1), 'deg': randint(0,360)}
+        }
+        list_data.append(entry)
+    return {'list': list_data} #Creates fake weather data for testing the app without hitting the API.
+
+
+AI: Here’s a structured and annotated version of your weather chatbot code with:
+
+1. ✅ **Function Definitions** (already present, but documented clearly),
+2. 🧪 **Three types of testing**: `doctest`, `unittest`, and `assert` usage,
+3. 🐞 **Debugging helper function** to simulate a real-world scenario.
+
+---
+
+## 📘 Function Definition (Example: `parse_weather_question`)
+
+```python
+def parse_weather_question(question):
+    """
+    Parses a weather-related question and extracts condition, city, and time frame.
+
+    Args:
+        question (str): The input weather question string.
+
+    Returns:
+        dict: A dictionary with keys 'condition', 'city', and 'time_frame'.
+
+    Example:
+    >>> parse_weather_question("Will it rain tomorrow in Paris?")
+    {'condition': 'rain', 'city': 'Paris,FR', 'time_frame': 'tomorrow'}
+    """
+    # Function code already included above.
+```
+
+To enable **doctest**, make sure you include this at the end of the script:
+
+```python
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
+```
+
+---
+
+## ✅ `assert` Statements (Basic internal test)
+
+Use `assert` inside a test function:
+
+```python
+def test_parse_weather_question():
+    result = parse_weather_question("Will it snow in London this weekend?")
+    assert result['condition'] == 'snow'
+    assert result['city'] == 'London,GB'
+    assert result['time_frame'] == 'this_weekend'
+```
+
+You can run this manually or automate it with a test suite.
+
+---
+
+## ✅ `unittest` Example (Robust testing structure)
+
+```python
+import unittest
+
+class TestWeatherParser(unittest.TestCase):
+
+    def test_rain_today(self):
+        question = "Will it rain today in Berlin?"
+        parsed = parse_weather_question(question)
+        self.assertEqual(parsed['condition'], 'rain')
+        self.assertEqual(parsed['city'], 'Berlin,DE')
+        self.assertEqual(parsed['time_frame'], 'today')
+
+    def test_fallback_time_frame(self):
+        question = "Is it sunny in Sydney?"
+        parsed = parse_weather_question(question)
+        self.assertEqual(parsed['condition'], 'clear')
+        self.assertEqual(parsed['city'], 'Sydney,AU')
+        self.assertEqual(parsed['time_frame'], 'today')
+
+if __name__ == "__main__":
+    unittest.main()
+```
+
+---
+
+## 🐞 Debugging Function to Simulate Real-World Use
+
+This simulates how a user might interact with the system and helps with manual testing:
+
+```python
+def debug_weather_chatbot():
+    test_questions = [
+        "Will it rain tomorrow in London?",
+        "Is it going to be windy this weekend in Paris?",
+        "What will the temperature be like in New York for the next 3 days?",
+        "Will it snow day after tomorrow in Berlin?",
+        "How hot will it be in Sydney today?"
+    ]
+    for question in test_questions:
+        print(f"❓ Question: {question}")
+        parsed = parse_weather_question(question)
+        print("🔍 Parsed:", parsed)
+        response = generate_weather_response(parsed, source='mocksource')
+        print("📢 Response:\n", response)
+        print("-" * 60)
+
+# Uncomment to run the debugger
+# debug_weather_chatbot()
+```
+
+---
+
+## ✅ Summary
+
+| Feature                                      | Included |
+| -------------------------------------------- | -------- |
+| ✅ Function docstring + example (for doctest) | ✔️       |
+| ✅ `doctest.testmod()` call                   | ✔️       |
+| ✅ `assert`-based mini-test                   | ✔️       |
+| ✅ `unittest.TestCase` class                  | ✔️       |
+| ✅ Debugging / simulation function            | ✔️       |
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 2, 📊 Visualisation Functions.
+-----------------------------------------------------------------------------------------------------------------
+
+Me:
+Can you help me with the Functions and also go through the three types of testing: doctest, unittest, assert of my code please
+
+AI:
+
+## ✅ 1. `interactive_temperature_plot(data, city)`
+
+### 📘 Function Definition
+
+```python
+def interactive_temperature_plot(data, city):
+    """Show an interactive temperature line chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    temps = [entry['main']['temp'] for entry in data['list']]
+    
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.plot(times[:index], temps[:index], marker='o', linestyle='-', color='orange')
+        plt.title(f"Temperature Forecast for {city.title()}")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Temperature (°C)")
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+```
+
+---
+
+### ✅ Testing
+
+> ❗Since it's interactive and visual, we use **manual testing** + **structure checks**.
+
+#### 📍 Assert for Data Structure
+
+```python
+def test_interactive_temperature_plot():
+    mock_data = fetch_mock_source("Testville")
+    assert 'list' in mock_data
+    assert 'dt_txt' in mock_data['list'][0]
+    assert 'main' in mock_data['list'][0]
+    assert 'temp' in mock_data['list'][0]['main']
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+# Simulate input and plot manually
+mock_data = fetch_mock_source("MockCity")
+interactive_temperature_plot(mock_data, "MockCity")
+```
+
+---
+
+## ✅ 2. `interactive_precipitation_plot(data, city)`
+
+### 📘 Function Definition
+
+```python
+def interactive_precipitation_plot(data, city):
+    """Show an interactive precipitation bar chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    rain = [entry.get('rain', {}).get('3h', 0) for entry in data['list']]
+    
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.bar(times[:index], rain[:index], width=0.1, color='blue', edgecolor='black')
+        plt.title(f"Precipitation Forecast for {city.title()} (Next 5 Days)")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Rain (mm in 3h)")
+        plt.xticks(rotation=45)
+        plt.grid(axis='y', linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+    
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+```
+
+---
+
+### ✅ Testing
+
+> Again, visual/interactive, so we do structure validation + visual confirmation.
+
+#### 📍 Assert for Data Structure
+
+```python
+def test_interactive_precipitation_plot():
+    mock_data = fetch_mock_source("MockCity")
+    assert 'list' in mock_data
+    assert 'dt_txt' in mock_data['list'][0]
+    assert isinstance(mock_data['list'][0].get('rain', {}).get('3h', 0), (int, float))
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+mock_data = fetch_mock_source("Rainville")
+interactive_precipitation_plot(mock_data, "Rainville")
+```
+-----------------------------------------------------------------------------------------------------------------
+Conversation 3, 🧭 User Interface.
+-----------------------------------------------------------------------------------------------------------------
+
+Me:
+Can you help me with the Functions and also go through the three types of testing: doctest, unittest, assert of my code please; def interactive_ui():
+    """Build and display the main weather assistant UI with all widgets and layout."""
+    # Input fields for city, question, and data source selection
+    city_input = widgets.Text(...)
+    question_input = widgets.Text(...)
+    source_dropdown = widgets.Dropdown(...)
+
+    # Output area for weather answers and charts
+    output_area = widgets.Output(...)
+
+    # Buttons for forecast, answering, and clearing
+    forecast_btn = widgets.Button(...)
+    question_btn = widgets.Button(...)
+    clear_btn = widgets.Button(...)
+
+    # Enable/disable buttons based on input fields
+    def toggle_buttons(*args):
+        forecast_btn.disabled = not bool(city_input.value.strip())
+        question_btn.disabled = not bool(question_input.value.strip())
+    city_input.observe(toggle_buttons, 'value')
+    question_input.observe(toggle_buttons, 'value')
+    toggle_buttons()
+
+    # Button click handlers
+    def on_forecast_button_click(_):
+        with output_area:
+            clear_output()
+            city = city_input.value.strip()
+            if not city:
+                print("❌ Please enter a city.")
+                return
+            try:
+                data = fetch_weather_data(city, source=source_dropdown.value)
+                interactive_temperature_plot(data, city)
+                interactive_precipitation_plot(data, city)
+            except Exception as e:
+                print(f"❌ Error: {e}")
+
+    def on_question_button_click(_):
+        with output_area:
+            clear_output()
+            question = question_input.value.strip()
+            if not question:
+                print("❌ Please enter a question.")
+                return
+            parsed = parse_weather_question(question)
+            response = generate_weather_response(parsed, source=source_dropdown.value)
+            print(response)
+
+    def on_clear_button_click(_):
+        city_input.value = ''
+        question_input.value = ''
+        with output_area:
+            clear_output()
+
+    # Attach handlers to buttons
+    forecast_btn.on_click(on_forecast_button_click)
+    question_btn.on_click(on_question_button_click)
+    clear_btn.on_click(on_clear_button_click)
+
+    # Layout rows for inputs and output
+    input_row = widgets.HBox([...])
+    question_row = widgets.HBox([...])
+
+    # Header for the app
+    header = widgets.HTML(...)
+
+    # Main box: the card-like container for all widgets
+    main_box = widgets.VBox([
+        header,
+        input_row,
+        question_row,
+        output_area
+    ], layout=widgets.Layout(...))
+
+    display(main_box)
+
+# Run the UI
+interactive_ui()
+
+AI:
+Here’s a detailed breakdown of your `interactive_ui()` function, including code summary, unit test strategy, simulation, and suggestions for improvement.
+
+---
+
+## ✅ 4. `interactive_ui()`
+
+### 📘 Function Definition
+
+```python
+def interactive_ui():
+    """Build and display the main weather assistant UI with all widgets and layout."""
+
+    # --- UI Components ---
+    city_input = widgets.Text(...)            # User enters a city
+    question_input = widgets.Text(...)        # User asks a weather question
+    source_dropdown = widgets.Dropdown(...)   # Selects data source
+
+    output_area = widgets.Output(...)         # Displays responses and plots
+
+    forecast_btn = widgets.Button(...)        # Triggers forecast generation
+    question_btn = widgets.Button(...)        # Triggers Q&A logic
+    clear_btn = widgets.Button(...)           # Clears input/output
+
+    # --- Input Validation ---
+    def toggle_buttons(*args):
+        forecast_btn.disabled = not bool(city_input.value.strip())
+        question_btn.disabled = not bool(question_input.value.strip())
+    city_input.observe(toggle_buttons, 'value')
+    question_input.observe(toggle_buttons, 'value')
+    toggle_buttons()
+
+    # --- Button Handlers ---
+    def on_forecast_button_click(_):
+        with output_area:
+            clear_output()
+            city = city_input.value.strip()
+            if not city:
+                print("❌ Please enter a city.")
+                return
+            try:
+                data = fetch_weather_data(city, source=source_dropdown.value)
+                interactive_temperature_plot(data, city)
+                interactive_precipitation_plot(data, city)
+            except Exception as e:
+                print(f"❌ Error: {e}")
+
+    def on_question_button_click(_):
+        with output_area:
+            clear_output()
+            question = question_input.value.strip()
+            if not question:
+                print("❌ Please enter a question.")
+                return
+            parsed = parse_weather_question(question)
+            response = generate_weather_response(parsed, source=source_dropdown.value)
+            print(response)
+
+    def on_clear_button_click(_):
+        city_input.value = ''
+        question_input.value = ''
+        with output_area:
+            clear_output()
+
+    # --- Button to Action Binding ---
+    forecast_btn.on_click(on_forecast_button_click)
+    question_btn.on_click(on_question_button_click)
+    clear_btn.on_click(on_clear_button_click)
+
+    # --- Layout ---
+    input_row = widgets.HBox([...])
+    question_row = widgets.HBox([...])
+    header = widgets.HTML(...)
+    main_box = widgets.VBox([
+        header,
+        input_row,
+        question_row,
+        output_area
+    ], layout=widgets.Layout(...))
+
+    display(main_box)
+```
+
+---
+
+### ✅ Unit Tests (Logic-Only: UI Cannot Be Fully Unit-Tested)
+
+Since direct UI testing (with `ipywidgets`) is tricky without interaction tools like Selenium or `pytest-ipywidgets`, here’s what you **can** test indirectly:
+
+#### 📍 Test: Button Toggle Logic
+
+```python
+def test_toggle_buttons():
+    city_input = widgets.Text(value='New York')
+    question_input = widgets.Text(value='Will it rain tomorrow?')
+    forecast_btn = widgets.Button()
+    question_btn = widgets.Button()
+
+    def toggle_buttons(*args):
+        forecast_btn.disabled = not bool(city_input.value.strip())
+        question_btn.disabled = not bool(question_input.value.strip())
+
+    toggle_buttons()
+    assert not forecast_btn.disabled
+    assert not question_btn.disabled
+```
+
+#### 📍 Test: Forecast Button Logic
+
+You can **mock** `fetch_weather_data`, `interactive_temperature_plot`, and `interactive_precipitation_plot` to test that the right flow is followed:
+
+```python
+def test_forecast_logic(monkeypatch):
+    city = "London"
+    dummy_data = {'temp': [20, 21, 22]}
+
+    def mock_fetch_weather_data(c, source):
+        assert c == city
+        return dummy_data
+
+    monkeypatch.setattr('your_module.fetch_weather_data', mock_fetch_weather_data)
+    monkeypatch.setattr('your_module.interactive_temperature_plot', lambda data, city: None)
+    monkeypatch.setattr('your_module.interactive_precipitation_plot', lambda data, city: None)
+
+    # You’d need to simulate button click here if integrated with full UI
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+# This will render the full UI in a Jupyter Notebook environment
+interactive_ui()
+```
+
+---
+
+### 🧠 Suggestions for Improvement
+
+1. **Validation Feedback**:
+
+   * Add placeholder text like `"Enter a city..."` or `"Ask a weather question..."` to guide users.
+
+2. **Error Handling**:
+
+   * Catch specific exceptions (`requests.exceptions.RequestException`, `KeyError`, etc.) for better feedback.
+
+3. **Accessibility Enhancements**:
+
+   * Use `tooltip` and `description` fields in widgets for screen readers and usability.
+
+4. **UI Responsiveness**:
+
+   * Consider adding a loading indicator (e.g. a spinner or text like “Loading…”) while fetching data.
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 4, 🤖 Natural Language Processing.
+-----------------------------------------------------------------------------------------------------------------
+
+Me:
+Can you help me with the Functions and also go through the three types of testing: doctest, unittest, assert of my code please; #Extracts the user's intent (rain, temperature, etc.), city, and time frame from their question.
+def parse_weather_question(question):
+    """Parse user's question to extract weather condition, city, and time frame."""
+    question_lower = question.lower()
+    # Synonyms for weather conditions
+    condition_keywords = {
+        'rain': [...], 'snow': [...], 'clear': [...], 'cloudy': [...],
+        'temperature': [...], 'wind': [...], 'humidity': [...], 'storm': [...], 'fog': [...]
+    }
+    # Detect which weather condition is being asked about
+    condition = None
+    for cond, synonyms in condition_keywords.items():
+        for syn in synonyms:
+            if syn in question_lower:
+                condition = cond
+                break
+        if condition:
+            break
+    if not condition:
+        condition = 'general'  # Default if no keyword found
+
+    # Detect time frame (today, tomorrow, etc.)
+    if 'day after tomorrow' in question_lower:
+        time_frame = 'day_after_tomorrow'
+    elif 'tomorrow' in question_lower:
+        time_frame = 'tomorrow'
+    elif 'today' in question_lower:
+        time_frame = 'today'
+    else:
+        match = re.search(r'next (\d+) days', question_lower)
+        if match:
+            time_frame = f"next_{match.group(1)}_days"
+        elif 'this weekend' in question_lower:
+            time_frame = 'this_weekend'
+        else:
+            time_frame = 'today'
+
+    # Try to extract city name after "in"
+    city_match = re.search(
+        r"in ([a-zA-ZÀ-ÿ\s\-]+?)(?:\s+(?:today|tomorrow|day after tomorrow|next \d+ days|this weekend)|\?|$| ... )",
+        question_lower)
+    if city_match:
+        city = city_match.group(1).strip()
+    else:
+        # Fallback: last capitalized word as city
+        capitalized = re.findall(r"\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*", question)
+        city = capitalized[-1] if capitalized else None
+
+    # Normalize some city names to include country code for better API results
+    fixes = {...}
+    if city:
+        city_key = city.lower()
+        city = fixes.get(city_key, city.title())
+    else:
+        city = None
+
+    return {
+        'condition': condition,
+        'city': city,
+        'time_frame': time_frame
+    }
+
+
+AI:
+Here's a structured breakdown for your function `parse_weather_question(question)`—designed to extract the user's **intent**, **city**, and **time frame** from a natural language question.
+
+---
+
+## ✅ 3. `parse_weather_question(question)`
+
+### 📘 Function Definition
+
+```python
+def parse_weather_question(question):
+    """Parse user's question to extract weather condition, city, and time frame."""
+    question_lower = question.lower()
+
+    # Synonyms for weather conditions
+    condition_keywords = {
+        'rain': [...], 'snow': [...], 'clear': [...], 'cloudy': [...],
+        'temperature': [...], 'wind': [...], 'humidity': [...], 'storm': [...], 'fog': [...]
+    }
+
+    # Identify condition
+    condition = None
+    for cond, synonyms in condition_keywords.items():
+        for syn in synonyms:
+            if syn in question_lower:
+                condition = cond
+                break
+        if condition:
+            break
+    if not condition:
+        condition = 'general'
+
+    # Identify time frame
+    if 'day after tomorrow' in question_lower:
+        time_frame = 'day_after_tomorrow'
+    elif 'tomorrow' in question_lower:
+        time_frame = 'tomorrow'
+    elif 'today' in question_lower:
+        time_frame = 'today'
+    else:
+        match = re.search(r'next (\d+) days', question_lower)
+        if match:
+            time_frame = f"next_{match.group(1)}_days"
+        elif 'this weekend' in question_lower:
+            time_frame = 'this_weekend'
+        else:
+            time_frame = 'today'
+
+    # Identify city
+    city_match = re.search(
+        r"in ([a-zA-ZÀ-ÿ\s\-]+?)(?:\s+(?:today|tomorrow|day after tomorrow|next \d+ days|this weekend)|\?|$)",
+        question_lower)
+    if city_match:
+        city = city_match.group(1).strip()
+    else:
+        capitalized = re.findall(r"\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*", question)
+        city = capitalized[-1] if capitalized else None
+
+    # Normalize city names (if dictionary is defined)
+    fixes = {...}  # Define your city corrections here
+    if city:
+        city_key = city.lower()
+        city = fixes.get(city_key, city.title())
+    else:
+        city = None
+
+    return {
+        'condition': condition,
+        'city': city,
+        'time_frame': time_frame
+    }
+```
+
+---
+
+### ✅ Unit Tests
+
+Here’s how you'd write **tests** for intent, city, and time extraction:
+
+```python
+def test_parse_weather_question_basic():
+    q = "Will it rain in Paris tomorrow?"
+    result = parse_weather_question(q)
+    assert result['condition'] == 'rain'
+    assert result['city'] == 'Paris'
+    assert result['time_frame'] == 'tomorrow'
+
+def test_parse_weather_question_with_default():
+    q = "What's the weather like?"
+    result = parse_weather_question(q)
+    assert result['condition'] == 'general'
+    assert result['city'] is None
+    assert result['time_frame'] == 'today'
+
+def test_parse_weather_question_next_days():
+    q = "Will it be cloudy in Cape Town next 3 days?"
+    result = parse_weather_question(q)
+    assert result['condition'] == 'cloudy'
+    assert result['city'] == 'Cape Town'
+    assert result['time_frame'] == 'next_3_days'
+
+def test_parse_weather_question_with_synonyms():
+    # Add synonyms to the list to make this test pass
+    q = "Any chance of showers in Sydney this weekend?"
+    result = parse_weather_question(q)
+    assert result['condition'] == 'rain'
+    assert result['city'] == 'Sydney'
+    assert result['time_frame'] == 'this_weekend'
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+example = "What will the temperature be in Rome the day after tomorrow?"
+parsed = parse_weather_question(example)
+print(parsed)
+# Output might be:
+# {'condition': 'temperature', 'city': 'Rome', 'time_frame': 'day_after_tomorrow'}
+```
+
+Me: 
+
+def generate_weather_response(parsed, source='openweathermap'):
+    if not parsed or not parsed.get('city'):
+        return "⚠️ Sorry, I couldn't understand your question or detect the city. Please try again."
+
+    condition = parsed['condition']
+    city = parsed['city']
+    time_frame = parsed['time_frame']
+
+    try:
+        data = fetch_weather_data(city, source=source)
+        today = datetime.utcnow().date()
+
+        if time_frame == 'tomorrow':
+            target_date = today + timedelta(days=1)
+        elif time_frame == 'day_after_tomorrow':
+            target_date = today + timedelta(days=2)
+        elif time_frame.startswith('next_'):
+            days = int(time_frame.split('_')[1])
+            temps = []
+            rains = []
+            for entry in data['list']:
+                entry_date = datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S").date()
+                if today <= entry_date < today + timedelta(days=days):
+                    temps.append(entry['main']['temp'])
+                    rains.append(entry.get('rain', {}).get('3h', 0))
+            if temps:
+                avg_temp = sum(temps) / len(temps)
+                total_rain = sum(rains)
+                return (f"🌤️ Over the next {days} days in {city}, expect an average temperature of "
+                        f"{avg_temp:.1f}°C and total precipitation around {total_rain:.1f} mm.")
+            else:
+                return f"⚠️ Sorry, no forecast data available for the next {days} days in {city}."
+        else:
+            target_date = today
+
+        day_entries = [entry for entry in data['list'] if datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S").date() == target_date]
+        if not day_entries:
+            return f"⚠️ Sorry, no forecast data available for {time_frame.replace('_', ' ')} in {city}."
+
+        temps = [entry['main']['temp'] for entry in day_entries]
+        avg_temp = sum(temps) / len(temps)
+        rain_volumes = [entry.get('rain', {}).get('3h', 0) for entry in day_entries]
+        total_rain = sum(rain_volumes)
+        wind_speeds = [entry.get('wind', {}).get('speed', 0) for entry in day_entries]
+        max_wind = max(wind_speeds) if wind_speeds else 0
+
+        will_rain = total_rain > 1
+        is_cold = avg_temp < 10
+        is_hot = avg_temp > 25
+        windy = max_wind > 15
+
+        messages = []
+        messages.append(f"🌤️ Weather forecast for {city} {time_frame.replace('_', ' ')}:")
+        messages.append(f"Average temperature: {avg_temp:.1f}°C.")
+
+        if will_rain:
+            rain_msgs = [
+                "Pack an umbrella, unless you're secretly a duck. ☔",
+                "Rain is on the forecast! Time to dance in the puddles...or just stay inside with a good book. 🌧️",
+                "The sky is crying today - bring a raincoat and cheer it up! 😢",
+            ]
+            messages.append(choice(rain_msgs))
+        else:
+            clear_msgs = [
+                "Clear skies ahead! Time to wear those sunglasses 😎",
+                "Looks like the sun's got its hat on! Don't forget the sunscreen. ☀️",
+                "Not a cloud in sight - perfect day for a picnic! 🧺",
+            ]
+            messages.append(choice(clear_msgs))
+
+        if is_cold:
+            cold_msgs = [
+                "It's colder than a penguin's toes out there! Bundle up! 🐧",
+                "Time to build a snowman... or just hide under a blanket. ☃️",
+                "Beware of rogue icicles! Dress warmly, or you'll turn into a human popsicle. 🥶",
+            ]
+            messages.append(choice(cold_msgs))
+        elif is_hot:
+            hot_msgs = [
+                "It's hotter than a dragon's breath! Stay hydrated! 🐉",
+                "Time to hit the beach...or just sit in front of the AC. 🏖️",
+                "Make sure to hydrate today, or you may end up melting like the polar ice caps. 🥵",
+            ]
+            messages.append(choice(hot_msgs))
+
+        if windy:
+            windy_msgs = [
+                "Hold onto your hats, it's gonna be a wild one! 💨",
+                "Prepare for a hair-raising experience - the wind is howling! 💇‍♀️",
+                "Make sure all loose items are secured, or they may end up in another country! 🌪️",
+            ]
+            messages.append(choice(windy_msgs))
+
+        messages.append(f"Total precipitation expected: {total_rain:.1f} mm.")
+        messages.append("Have a great day! ☀️")
+
+        return "\n".join(messages)
+
+    except Exception as e:
+        return f"❌ Could not retrieve weather for {city}: {e}"
+
+for this code too; def parse_weather_question(question):
+    question_lower = question.lower()
+
+    condition_keywords = {
+        'rain': ['rain', 'raining', 'rainy', 'wet', 'shower', 'showers', 'drizzle'],
+        'snow': ['snow', 'snowing', 'snowy', 'flurries'],
+        'clear': ['clear', 'sunny', 'bright'],
+        'cloudy': ['cloud', 'cloudy', 'overcast'],
+        'temperature': ['temperature', 'hot', 'cold', 'warm', 'chilly', 'freezing', 'heat'],
+        'wind': ['wind', 'windy', 'breeze', 'gust'],
+        'humidity': ['humidity', 'humid', 'dry'],
+        'storm': ['storm', 'thunderstorm', 'lightning', 'hail'],
+        'fog': ['fog', 'mist', 'haze']
+    }
+
+    condition = None
+    for cond, synonyms in condition_keywords.items():
+        for syn in synonyms:
+            if syn in question_lower:
+                condition = cond
+                break
+        if condition:
+            break
+    if not condition:
+        condition = 'general'
+
+    if 'day after tomorrow' in question_lower:
+        time_frame = 'day_after_tomorrow'
+    elif 'tomorrow' in question_lower:
+        time_frame = 'tomorrow'
+    elif 'today' in question_lower:
+        time_frame = 'today'
+    else:
+        match = re.search(r'next (\d+) days', question_lower)
+        if match:
+            time_frame = f"next_{match.group(1)}_days"
+        elif 'this weekend' in question_lower:
+            time_frame = 'this_weekend'
+        else:
+            time_frame = 'today'
+
+    city_match = re.search(
+        r"in ([a-zA-ZÀ-ÿ\s\-]+?)(?:\s+(?:today|tomorrow|day after tomorrow|next \d+ days|this weekend)|\?|$| will| is| does| rain| snow| clear| cloudy| thunderstorm| drizzle| fog| mist| temperature| wind| humidity| storm)",
+        question_lower)
+    if city_match:
+        city = city_match.group(1).strip()
+    else:
+        capitalized = re.findall(r"\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)*", question)
+        city = capitalized[-1] if capitalized else None
+
+    fixes = {
+        "paris": "Paris,FR",
+        "london": "London,GB",
+        "new york": "New York,US",
+        "berlin": "Berlin,DE",
+        "sydney": "Sydney,AU"
+    }
+    if city:
+        city_key = city.lower()
+        city = fixes.get(city_key, city.title())
+    else:
+        city = None
+
+    return {
+        'condition': condition,
+        'city': city,
+        'time_frame': time_frame
+    }
+
+def generate_weather_response(parsed, source='openweathermap'):
+    if not parsed or not parsed.get('city'):
+        return "⚠️ Sorry, I couldn't understand your question or detect the city. Please try again."
+
+    condition = parsed['condition']
+    city = parsed['city']
+    time_frame = parsed['time_frame']
+
+    try:
+        data = fetch_weather_data(city, source=source)
+        today = datetime.utcnow().date()
+
+        if time_frame == 'tomorrow':
+            target_date = today + timedelta(days=1)
+        elif time_frame == 'day_after_tomorrow':
+            target_date = today + timedelta(days=2)
+        elif time_frame.startswith('next_'):
+            days = int(time_frame.split('_')[1])
+            temps = []
+            rains = []
+            for entry in data['list']:
+                entry_date = datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S").date()
+                if today <= entry_date < today + timedelta(days=days):
+                    temps.append(entry['main']['temp'])
+                    rains.append(entry.get('rain', {}).get('3h', 0))
+            if temps:
+                avg_temp = sum(temps) / len(temps)
+                total_rain = sum(rains)
+                return (f"🌤️ Over the next {days} days in {city}, expect an average temperature of "
+                        f"{avg_temp:.1f}°C and total precipitation around {total_rain:.1f} mm.")
+            else:
+                return f"⚠️ Sorry, no forecast data available for the next {days} days in {city}."
+        else:
+            target_date = today
+
+        day_entries = [entry for entry in data['list'] if datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S").date() == target_date]
+        if not day_entries:
+            return f"⚠️ Sorry, no forecast data available for {time_frame.replace('_', ' ')} in {city}."
+
+        temps = [entry['main']['temp'] for entry in day_entries]
+        avg_temp = sum(temps) / len(temps)
+        rain_volumes = [entry.get('rain', {}).get('3h', 0) for entry in day_entries]
+        total_rain = sum(rain_volumes)
+        wind_speeds = [entry.get('wind', {}).get('speed', 0) for entry in day_entries]
+        max_wind = max(wind_speeds) if wind_speeds else 0
+
+        will_rain = total_rain > 1
+        is_cold = avg_temp < 10
+        is_hot = avg_temp > 25
+        windy = max_wind > 15
+
+        messages = []
+        messages.append(f"🌤️ Weather forecast for {city} {time_frame.replace('_', ' ')}:")
+        messages.append(f"Average temperature: {avg_temp:.1f}°C.")
+
+        if will_rain:
+            rain_msgs = [
+                "Pack an umbrella, unless you're secretly a duck. ☔",
+                "Rain is on the forecast! Time to dance in the puddles...or just stay inside with a good book. 🌧️",
+                "The sky is crying today - bring a raincoat and cheer it up! 😢",
+            ]
+            messages.append(choice(rain_msgs))
+        else:
+            clear_msgs = [
+                "Clear skies ahead! Time to wear those sunglasses 😎",
+                "Looks like the sun's got its hat on! Don't forget the sunscreen. ☀️",
+                "Not a cloud in sight - perfect day for a picnic! 🧺",
+            ]
+            messages.append(choice(clear_msgs))
+
+        if is_cold:
+            cold_msgs = [
+                "It's colder than a penguin's toes out there! Bundle up! 🐧",
+                "Time to build a snowman... or just hide under a blanket. ☃️",
+                "Beware of rogue icicles! Dress warmly, or you'll turn into a human popsicle. 🥶",
+            ]
+            messages.append(choice(cold_msgs))
+        elif is_hot:
+            hot_msgs = [
+                "It's hotter than a dragon's breath! Stay hydrated! 🐉",
+                "Time to hit the beach...or just sit in front of the AC. 🏖️",
+                "Make sure to hydrate today, or you may end up melting like the polar ice caps. 🥵",
+            ]
+            messages.append(choice(hot_msgs))
+
+        if windy:
+            windy_msgs = [
+                "Hold onto your hats, it's gonna be a wild one! 💨",
+                "Prepare for a hair-raising experience - the wind is howling! 💇‍♀️",
+                "Make sure all loose items are secured, or they may end up in another country! 🌪️",
+            ]
+            messages.append(choice(windy_msgs))
+
+        messages.append(f"Total precipitation expected: {total_rain:.1f} mm.")
+        messages.append("Have a great day! ☀️")
+
+        return "\n".join(messages)
+
+    except Exception as e:
+        return f"❌ Could not retrieve weather for {city}: {e}"
+
+AI:
+Here's a breakdown of the **cyclomatic complexity**, **code smells**, and **refactoring suggestions** for your `parse_weather_question` and `generate_weather_response` functions.
+
+---
+
+### ✅ **Cyclomatic Complexity**
+
+Cyclomatic complexity (CC) is a measure of the number of independent paths through your code, typically calculated as:
+
+> `CC = E - N + 2P`
+> Where:
+>
+> * `E` = number of edges (transitions)
+> * `N` = number of nodes (statements)
+> * `P` = number of connected components (usually 1 for single function)
+
+You can approximate it by counting:
+
+* if/else
+* for/while
+* try/except
+* boolean conditions (e.g., `and`, `or`)
+
+#### 1. `parse_weather_question`
+
+Estimated CC ≈ **11–13**
+
+* Multiple `if` conditions
+* A nested loop (loop over `condition_keywords`)
+* Regex logic
+* Fallback logic for city name
+* Dictionary fix logic
+
+#### 2. `generate_weather_response`
+
+Estimated CC ≈ **17–20**
+
+* Multiple branching based on `time_frame`
+* Iteration over forecast entries
+* Several `if/elif` conditions to evaluate temperature, rain, wind, etc.
+* Exception handling
+* Random message selection adds complexity
+
+---
+
+### ⚠️ **Code Smells**
+
+#### 1. **Long Functions**
+
+Both functions are too long and perform too many responsibilities, violating **Single Responsibility Principle**.
+
+#### 2. **Deep Nesting**
+
+Too many levels of `if` and `for` statements, especially in `generate_weather_response`.
+
+#### 3. **Hardcoded Keywords**
+
+Condition and city matching relies on hardcoded lists and dictionaries. It’s fine for prototyping but not scalable.
+
+#### 4. **Magic Numbers and Strings**
+
+E.g., `total_rain > 1`, `avg_temp < 10`, `"next (\d+) days"` — should be defined as constants.
+
+#### 5. **Low Cohesion**
+
+Functions do too much:
+
+* `parse_weather_question` handles NLP, regex, and location detection.
+* `generate_weather_response` mixes data extraction, business logic, and UX-friendly messaging.
+
+---
+
+### 🔧 **Refactoring Suggestions**
+
+#### ✂️ Break Into Smaller Functions
+
+**Example:** Refactor `parse_weather_question()` into:
+
+```python
+def extract_condition(question_lower): ...
+def extract_time_frame(question_lower): ...
+def extract_city(question, question_lower): ...
+```
+
+**Likewise for `generate_weather_response()`:**
+
+```python
+def compute_target_date(time_frame): ...
+def summarize_forecast(entries): ...
+def generate_condition_messages(avg_temp, total_rain, max_wind): ...
+```
+
+---
+
+#### 🧽 Use Constants for Thresholds
+
+```python
+COLD_TEMP_THRESHOLD = 10
+HOT_TEMP_THRESHOLD = 25
+WINDY_THRESHOLD = 15
+RAIN_THRESHOLD = 1
+```
+
+---
+
+#### 🗃️ Move Dictionaries Outside Functions
+
+For reusability and easier testing:
+
+```python
+CONDITION_KEYWORDS = {
+    'rain': [...],
+    ...
+}
+
+CITY_FIXES = {
+    "paris": "Paris,FR",
+    ...
+}
+```
+
+---
+
+#### 🧠 Extract Random Message Logic
+
+Create a dictionary of message templates:
+
+```python
+WEATHER_MESSAGES = {
+    'rain': [...],
+    'clear': [...],
+    'cold': [...],
+    'hot': [...],
+    'windy': [...],
+}
+```
+
+Use:
+
+```python
+def get_random_message(condition_type): 
+    return choice(WEATHER_MESSAGES[condition_type])
+```
+
+
