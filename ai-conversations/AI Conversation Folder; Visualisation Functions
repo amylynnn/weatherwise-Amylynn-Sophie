@@ -1,0 +1,752 @@
+📂 AI Conversation Folder
+----------------------------------
+Tool: ChatGPT
+-----------------------------------------------------------------------------------------------------------------
+📊 Visualisation Functions 
+-----------------------------------------------------------------------------------------------------------------
+Conversation 1, Architect AI
+-----------------------------------------------------------------------------------------------------------------
+
+Me: 
+Here is my code, i used ax.set() with multiple parameters and used meaningful variable names such as (times\_data instead of data) for clarity. Can you suggest improvements to the function’s docstring to make it clearer and more comprehensive? As well as how I can make the visualisation more informative and visually appealing?
+
+import matplotlib.pyplot as plt
+
+def create\_temperature\_visualisation(weather\_data, output\_type='display'):
+"""
+Visualize temperature data for multiple locations.
+
+```
+Args:
+    weather_data (dict): {location: {time: {'temperature': value}}}
+    output_type (str): 'display' to show plot, 'figure' to return figure object
+
+Returns:
+    matplotlib.figure.Figure or None
+"""
+fig, ax = plt.subplots()
+
+for location, times_data in weather_data.items():
+    times = list(times_data.keys())
+    temps = [times_data[time]['temperature'] for time in times]
+    ax.plot(times, temps, marker='o', label=location)
+
+ax.set(title='Temperature Forecast', xlabel='Time Period', ylabel='Temperature (°C)')
+ax.legend()
+ax.grid(True)
+
+if output_type == 'figure':
+    return fig
+plt.show()
+```
+
+AI:
+Your function is well-structured, and you're already applying **best practices** like using `ax.set()` and clear variable names — great work! Here's how we can **enhance the docstring and the visualisation itself**:
+
+---
+
+## ✅ Improved Docstring
+
+A more comprehensive docstring should include:
+
+* What each argument means and expects (structure)
+* What the function does in more detail
+* Description of return value
+* Any assumptions or limitations
+
+```python
+def create_temperature_visualisation(weather_data, output_type='display'):
+    """
+    Generates a line plot visualising temperature forecasts for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            temperature values in the form:
+            {
+                'Location1': {
+                    'Day 1': {'temperature': 25},
+                    'Day 2': {'temperature': 28},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+
+    Notes:
+        - Assumes temperature values are numeric (in °C).
+        - X-axis ticks will be based on dictionary key order.
+    """
+```
+
+---
+
+## 🎨 Suggestions to Improve the Visualisation
+
+### ✅ 1. **Rotate x-axis labels** (for long or date-based time strings)
+
+```python
+plt.xticks(rotation=45)
+```
+
+### ✅ 2. **Add data labels or tooltips (optional)**
+
+If you want to annotate points (for clarity with few data points):
+
+```python
+for i, temp in enumerate(temps):
+    ax.annotate(f"{temp}°", (times[i], temps[i]), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
+```
+
+### ✅ 3. **Improve aesthetics (colors, grid, figure size)**
+
+```python
+fig, ax = plt.subplots(figsize=(10, 6))
+```
+
+You can also apply a style like:
+
+```python
+plt.style.use('seaborn-darkgrid')  # Optional: 'ggplot', 'bmh', etc.
+```
+
+---
+
+## ✅ Final Enhanced Version
+
+```python
+import matplotlib.pyplot as plt
+
+def create_temperature_visualisation(weather_data, output_type='display'):
+    """
+    Generates a line plot visualising temperature forecasts for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            temperature values in the form:
+            {
+                'Location1': {
+                    'Day 1': {'temperature': 25},
+                    'Day 2': {'temperature': 28},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+    """
+    plt.style.use('seaborn-darkgrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for location, times_data in weather_data.items():
+        times = list(times_data.keys())
+        temps = [times_data[time]['temperature'] for time in times]
+        ax.plot(times, temps, marker='o', label=location)
+
+        # Optional: annotate points
+        for i, temp in enumerate(temps):
+            ax.annotate(f"{temp}°", (times[i], temps[i]), textcoords="offset points", xytext=(0,5), ha='center', fontsize=8)
+
+    ax.set(title='Temperature Forecast', xlabel='Time Period', ylabel='Temperature (°C)')
+    ax.legend()
+    ax.grid(True)
+    plt.xticks(rotation=45)
+
+    if output_type == 'figure':
+        return fig
+    plt.show()
+```
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 2, Implementation AI
+-----------------------------------------------------------------------------------------------------------------
+
+Me:
+Can you show me how to add interactive features (like tooltips) to this plot using matplotlib
+
+AI:
+Matplotlib doesn't support real-time interactivity like **tooltips on hover** out-of-the-box in static environments like Google Colab. But there are a few options depending on your needs and environment:
+
+---
+
+## ✅ Option 1: Use **Plotly** for True Interactivity (Recommended)
+
+If you're okay with switching to `plotly.express`, you get tooltips **by default**, with hoverable points, zooming, and more.
+
+Here’s your function rewritten using Plotly:
+
+```python
+import plotly.express as px
+import pandas as pd
+
+def create_temperature_visualisation_interactive(weather_data):
+    """
+    Create an interactive temperature line chart using Plotly.
+    """
+    rows = []
+    for location, times_data in weather_data.items():
+        for time, info in times_data.items():
+            rows.append({
+                "Location": location,
+                "Time": time,
+                "Temperature": info["temperature"]
+            })
+
+    df = pd.DataFrame(rows)
+
+    fig = px.line(df, x="Time", y="Temperature", color="Location",
+                  markers=True, title="Interactive Temperature Forecast",
+                  labels={"Temperature": "Temp (°C)", "Time": "Time Period"})
+
+    fig.update_traces(mode='lines+markers', hovertemplate="%{y}°C at %{x}<br>%{fullData.name}")
+    fig.update_layout(xaxis_tickangle=-45)
+    fig.show()
+```
+
+> ✅ Works in Colab
+> ✅ Hover tooltips with temperature and location
+> ✅ Zoom/pan/reset enabled
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 3, Implementation AI
+-----------------------------------------------------------------------------------------------------------------
+
+Me:
+What about the improvement for the def create_precipitation_visualisation function
+
+AI:
+Great! Let’s apply the **same improvements** to your `create_precipitation_visualisation()` function:
+
+* ✅ Improve the **docstring**
+* ✅ Make the chart more **informative and visually appealing**
+* ✅ Ensure the layout is consistent with `create_temperature_visualisation()`
+
+---
+
+## ✅ Improved `create_precipitation_visualisation()` Function
+
+```python
+import matplotlib.pyplot as plt
+
+def create_precipitation_visualisation(weather_data, output_type='display'):
+    """
+    Generates a bar chart visualising precipitation chances for one or more locations.
+
+    Args:
+        weather_data (dict): A dictionary where each key is a location name (str),
+            and each value is another dict mapping time labels (e.g., dates or hours) to
+            precipitation data in the form:
+            {
+                'Location1': {
+                    'Day 1': {'precipitation': 20},
+                    'Day 2': {'precipitation': 45},
+                    ...
+                },
+                ...
+            }
+        output_type (str): Either 'display' to show the plot using plt.show(),
+            or 'figure' to return the matplotlib Figure object for further use.
+
+    Returns:
+        matplotlib.figure.Figure or None: Returns the figure if output_type is 'figure',
+        otherwise displays the plot and returns None.
+
+    Notes:
+        - Precipitation values are expected to be in percentages (0–100).
+        - Can handle multiple locations for comparison.
+    """
+    plt.style.use('seaborn-darkgrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    width = 0.35  # Width of the bars
+    locations = list(weather_data.keys())
+    time_labels = list(next(iter(weather_data.values())).keys())
+    x = range(len(time_labels))
+
+    for idx, location in enumerate(locations):
+        times_data = weather_data[location]
+        precip_values = [times_data[time]['precipitation'] for time in time_labels]
+        offsets = [i + (idx * width) for i in x]
+        ax.bar(offsets, precip_values, width=width, label=location)
+
+        # Optional: annotate bars
+        for i, value in enumerate(precip_values):
+            ax.text(offsets[i], value + 1, f"{value}%", ha='center', fontsize=8)
+
+    ax.set(
+        title="Chance of Rain by Location",
+        xlabel="Time Period",
+        ylabel="Chance of Rain (%)"
+    )
+    ax.set_xticks([i + width/2 for i in x])
+    ax.set_xticklabels(time_labels, rotation=45)
+    ax.legend()
+    ax.grid(True)
+
+    if output_type == 'figure':
+        return fig
+    plt.show()
+```
+
+---
+
+## 🎯 Improvements Made
+
+| Area                | What Changed                                  | Why                             |
+| ------------------- | --------------------------------------------- | ------------------------------- |
+| ✅ **Docstring**     | Clear, structured description of input/output | Easier to understand & maintain |
+| ✅ **Bar offsets**   | Enables **multi-location comparison**         | Cleaner grouped display         |
+| ✅ **Labels**        | Annotates each bar with `%` value             | More informative                |
+| ✅ **Style & Size**  | `seaborn-darkgrid`, bigger figure             | Modern & readable               |
+| ✅ **Legend + Grid** | Included for clarity                          | Supports comparison             |
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 4, Testing AI.
+-----------------------------------------------------------------------------------------------------------------
+Me:
+Can you explain how the bar offsets are calculated to avoid overlapping bars?
+
+AI:
+Great question! Understanding how **bar offsets** work is key to creating **grouped bar charts** in `matplotlib` without overlapping bars.
+
+Let’s break it down step by step using your code.
+
+---
+
+## 🔍 Why Do We Need Offsets?
+
+By default, if you draw multiple `ax.bar()` plots on the same `x` position, they will **overlap**.
+
+To avoid this, you shift each group’s bars **horizontally** using an *offset*.
+
+---
+
+## ✅ How Offsets Work in Your Code
+
+```python
+offsets = [i + (idx * width) for i in x]
+```
+
+Let’s unpack this:
+
+| Variable | Meaning                                                                         |
+| -------- | ------------------------------------------------------------------------------- |
+| `i`      | Index of the time point (e.g., 0, 1, 2, ...)                                    |
+| `idx`    | Index of the location in the outer loop (e.g., 0 for Paris, 1 for London, etc.) |
+| `width`  | The width of each bar (e.g., 0.35)                                              |
+
+So `i + (idx * width)` means:
+
+* Keep each **time period** on the base `x` position `i`
+* Then offset **each location’s bar** to the right by `width * idx` to make room for the next bar
+
+---
+
+### 📊 Visual Example (Assume 2 Locations, 3 Days)
+
+```
+Time index (x):   0       1       2
+                |       |       |
+Location 1:   [===]   [===]   [===]     --> offset = 0
+Location 2:     [===]   [===]   [===]   --> offset = 0.35
+```
+
+### 🔁 Bar Offset Formula:
+
+```
+bar_position = base_x + (location_index * bar_width)
+```
+
+---
+
+## ✅ Centering the Ticks
+
+```python
+ax.set_xticks([i + width/2 for i in x])
+```
+
+We shift the tick labels **to the center** of the group of bars, which now spans across `width * num_locations`.
+
+If we didn't do this, the x-tick labels would point to the leftmost bar, which looks odd.
+
+---
+
+## ✅ Summary
+
+| Element       | Purpose                                 |
+| ------------- | --------------------------------------- |
+| `width`       | Space each bar takes                    |
+| `idx * width` | Horizontal offset so bars don’t overlap |
+| `i + width/2` | Center tick labels under each group     |
+
+This pattern is the standard way to create **grouped bar charts** with `matplotlib`.
+
+---
+-----------------------------------------------------------------------------------------------------------------
+Conversation 5, Implementation AI.
+-----------------------------------------------------------------------------------------------------------------
+
+Me: How can I modify the function to accept a pandas DataFrame instead of a nested dictionary?
+
+AI:
+Great question! Refactoring your function to accept a **pandas DataFrame** instead of a nested dictionary makes it:
+
+✅ More flexible
+✅ Easier to integrate with CSV/API outputs
+✅ Cleaner for plotting with libraries like `seaborn` or `plotly`
+
+---
+
+## 🧾 Let's Assume Your DataFrame Looks Like This:
+
+| Location | Time    | Precipitation |
+| -------- | ------- | ------------- |
+| Paris    | Monday  | 40            |
+| London   | Monday  | 60            |
+| Paris    | Tuesday | 10            |
+| London   | Tuesday | 70            |
+
+---
+
+## ✅ Refactored Function: `create_precipitation_visualisation_from_df()`
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+def create_precipitation_visualisation_from_df(df: pd.DataFrame, output_type='display'):
+    """
+    Create a grouped bar chart of precipitation chances using a pandas DataFrame.
+
+    Args:
+        df (pd.DataFrame): DataFrame with columns ['Location', 'Time', 'Precipitation']
+        output_type (str): 'display' to show the plot, 'figure' to return the figure
+
+    Returns:
+        matplotlib.figure.Figure or None
+    """
+    plt.style.use('seaborn-darkgrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    locations = df['Location'].unique()
+    time_labels = df['Time'].unique()
+    width = 0.8 / len(locations)  # Adjust width based on number of locations
+    x = range(len(time_labels))
+
+    for idx, loc in enumerate(locations):
+        loc_data = df[df['Location'] == loc]
+        loc_data = loc_data.set_index('Time').reindex(time_labels).reset_index()
+        offsets = [i + (idx * width) for i in x]
+        precip = loc_data['Precipitation'].fillna(0).tolist()
+
+        ax.bar(offsets, precip, width=width, label=loc)
+        for i, value in enumerate(precip):
+            ax.text(offsets[i], value + 1, f"{value}%", ha='center', fontsize=8)
+
+    ax.set(
+        title="Chance of Rain by Location",
+        xlabel="Time Period",
+        ylabel="Chance of Rain (%)"
+    )
+    ax.set_xticks([i + width * (len(locations)-1)/2 for i in x])
+    ax.set_xticklabels(time_labels, rotation=45)
+    ax.legend()
+    ax.grid(True)
+
+    if output_type == 'figure':
+        return fig
+    plt.show()
+```
+
+---
+
+## 🔁 Benefits of This Approach
+
+| Feature        | Benefit                                               |
+| -------------- | ----------------------------------------------------- |
+| 🐼 `pandas`    | Easily accepts input from CSV, Excel, or API          |
+| 📊 `DataFrame` | Simplifies slicing and grouping                       |
+| 🔄 `unique()`  | Dynamically supports any number of locations or dates |
+| 🧠 `fillna(0)` | Handles missing data gracefully                       |
+
+---
+
+## 🔁 Sample Usage:
+
+```python
+import pandas as pd
+
+data = {
+    'Location': ['Paris', 'London', 'Paris', 'London'],
+    'Time': ['Monday', 'Monday', 'Tuesday', 'Tuesday'],
+    'Precipitation': [40, 60, 10, 70]
+}
+
+df = pd.DataFrame(data)
+
+create_precipitation_visualisation_from_df(df)
+```
+-----------------------------------------------------------------------------------------------------------------
+Conversation 6, Documentation AI.
+-----------------------------------------------------------------------------------------------------------------
+Me:
+i have updated my Temperature and pericipation functions to improve the visual, and i also changed the functions to interactive_temperature_plot and interactive_precipitation_plot to make it more interactive, can you walk me through my code please ; # Define create_temperature_visualisation() and create_precipitation_visualisation() here
+def interactive_temperature_plot(data, city): #I used interactive instead to let user interactively explore the temperature forecast for the next days
+    """Show an interactive temperature line chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    temps = [entry['main']['temp'] for entry in data['list']]
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.plot(times[:index], temps[:index], marker='o', linestyle='-', color='orange')
+        plt.title(f"Temperature Forecast for {city.title()}")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Temperature (°C)")
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8)), def interactive_precipitation_plot(data, city): #I used interactive instead to lets user interactively explore the rain forecast for the next days.
+    """Show an interactive precipitation bar chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    rain = [entry.get('rain', {}).get('3h', 0) for entry in data['list']]
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.bar(times[:index], rain[:index], width=0.1, color='blue', edgecolor='black')
+        plt.title(f"Precipitation Forecast for {city.title()} (Next 5 Days)")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Rain (mm in 3h)")
+        plt.xticks(rotation=45)
+        plt.grid(axis='y', linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+
+AI; 
+Absolutely! Let’s walk through both of your updated functions — `interactive_temperature_plot()` and `interactive_precipitation_plot()` — step by step. These are **interactive visualization functions** using `ipywidgets` and `matplotlib`, allowing users to **explore weather forecasts progressively**.
+
+---
+
+### 🔥 1. `interactive_temperature_plot(data, city)`
+
+```python
+def interactive_temperature_plot(data, city):
+```
+
+#### ✅ What it does:
+
+* Takes the `forecast data` (from OpenWeatherMap or your mock source) and `city` name.
+* Builds an interactive **line plot** of the temperature using a slider.
+
+#### 🧠 Inside the function:
+
+```python
+times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+temps = [entry['main']['temp'] for entry in data['list']]
+```
+
+* Extracts forecast timestamps and temperatures from the API response.
+* Parses timestamps into `datetime` objects for plotting.
+
+---
+
+```python
+def plot_upto(index=8):
+```
+
+* A **nested function** that takes an `index` (how many forecast points to show).
+* This is the core plotting logic that will be linked to the slider.
+
+```python
+plt.plot(times[:index], temps[:index], marker='o', linestyle='-', color='orange')
+```
+
+* Plots the temperature up to the selected index as a line with orange markers.
+* `plt.tight_layout()` ensures the layout fits neatly.
+
+---
+
+```python
+widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+```
+
+* This makes the function **interactive** by:
+
+  * Creating a **slider** (`IntSlider`) ranging from 1 to however many forecast points exist.
+  * Updating the plot whenever the slider is changed.
+
+✅ **Why this is useful**:
+It allows users to scroll through time and **see how the temperature changes** in smaller chunks. Great for exploring hourly data!
+
+---
+
+### 🌧️ 2. `interactive_precipitation_plot(data, city)`
+
+```python
+def interactive_precipitation_plot(data, city):
+```
+
+#### ✅ What it does:
+
+* Similar structure to the temperature plot, but builds an **interactive bar chart** for rain forecasts.
+
+---
+
+```python
+rain = [entry.get('rain', {}).get('3h', 0) for entry in data['list']]
+```
+
+* Extracts rainfall data for each 3-hour interval.
+* If rain data is missing (`'rain'` might not be present), it defaults to `0`.
+
+---
+
+```python
+plt.bar(times[:index], rain[:index], width=0.1, color='blue', edgecolor='black')
+```
+
+* Plots a **bar chart** with:
+
+  * Blue bars
+  * Narrow width (`0.1`) for time-based spacing
+  * Black edges for contrast
+
+* Uses similar layout and label styling as the temperature plot.
+
+---
+
+### ✅ Summary of Improvements
+
+| Feature        | Before                   | Now (Your Version)               |
+| -------------- | ------------------------ | -------------------------------- |
+| Interactivity  | Static plots             | Dynamic with slider              |
+| Control        | View entire data at once | Control how much forecast to see |
+| Visual Clarity | Possibly cluttered       | Cleaner, focused views           |
+| UX             | Passive                  | Engaging, exploratory            |
+
+-----------------------------------------------------------------------------------------------------------------
+Conversation 7, Testing AI.
+-----------------------------------------------------------------------------------------------------------------
+Me:
+Can you help me with the Functions and also go through the three types of testing: doctest, unittest, assert of my code please
+
+AI:
+Great! Let’s break down both of your **interactive plotting functions** into the structure you asked for:
+
+---
+
+## ✅ 1. `interactive_temperature_plot(data, city)`
+
+### 📘 Function Definition
+
+```python
+def interactive_temperature_plot(data, city):
+    """Show an interactive temperature line chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    temps = [entry['main']['temp'] for entry in data['list']]
+    
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.plot(times[:index], temps[:index], marker='o', linestyle='-', color='orange')
+        plt.title(f"Temperature Forecast for {city.title()}")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Temperature (°C)")
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+```
+
+---
+
+### ✅ Testing
+
+> ❗Since it's interactive and visual, we use **manual testing** + **structure checks**.
+
+#### 📍 Assert for Data Structure
+
+```python
+def test_interactive_temperature_plot():
+    mock_data = fetch_mock_source("Testville")
+    assert 'list' in mock_data
+    assert 'dt_txt' in mock_data['list'][0]
+    assert 'main' in mock_data['list'][0]
+    assert 'temp' in mock_data['list'][0]['main']
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+# Simulate input and plot manually
+mock_data = fetch_mock_source("MockCity")
+interactive_temperature_plot(mock_data, "MockCity")
+```
+
+---
+
+## ✅ 2. `interactive_precipitation_plot(data, city)`
+
+### 📘 Function Definition
+
+```python
+def interactive_precipitation_plot(data, city):
+    """Show an interactive precipitation bar chart with a slider."""
+    times = [datetime.strptime(entry['dt_txt'], "%Y-%m-%d %H:%M:%S") for entry in data['list']]
+    rain = [entry.get('rain', {}).get('3h', 0) for entry in data['list']]
+    
+    def plot_upto(index=8):
+        plt.figure(figsize=(12, 6))
+        plt.bar(times[:index], rain[:index], width=0.1, color='blue', edgecolor='black')
+        plt.title(f"Precipitation Forecast for {city.title()} (Next 5 Days)")
+        plt.xlabel("Date & Time")
+        plt.ylabel("Rain (mm in 3h)")
+        plt.xticks(rotation=45)
+        plt.grid(axis='y', linestyle='--', alpha=0.5)
+        plt.tight_layout()
+        plt.show()
+    
+    widgets.interact(plot_upto, index=widgets.IntSlider(min=1, max=len(times), step=1, value=8))
+```
+
+---
+
+### ✅ Testing
+
+> Again, visual/interactive, so we do structure validation + visual confirmation.
+
+#### 📍 Assert for Data Structure
+
+```python
+def test_interactive_precipitation_plot():
+    mock_data = fetch_mock_source("MockCity")
+    assert 'list' in mock_data
+    assert 'dt_txt' in mock_data['list'][0]
+    assert isinstance(mock_data['list'][0].get('rain', {}).get('3h', 0), (int, float))
+```
+
+---
+
+### 🧪 Debug Simulation
+
+```python
+mock_data = fetch_mock_source("Rainville")
+interactive_precipitation_plot(mock_data, "Rainville")
+```
+
+
+Would you like me to refactor them this way too?
+
+
