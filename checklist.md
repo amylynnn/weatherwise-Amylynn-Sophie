@@ -1,17 +1,6 @@
 ---
 title: "Project Completion Checklist"
-author: "Michael Borck"
-format: 
-  pdf:
-    toc: false
-    colorlinks: true
-  docx:
-    toc: false
-    highlight-style: github
-  html:
-    toc: true
-    toc-expand: 2
-    embed-resources: true
+author: "Amylynn Sophie"
 ---
 
 Use this checklist to track your progress and ensure your Weather Advisor project meets all requirements before submission.
